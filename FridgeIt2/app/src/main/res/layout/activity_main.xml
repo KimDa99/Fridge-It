@@ -6,61 +6,65 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/titleText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Fridge It!" />
+        android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/select_Ingredient_Layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
+            <TextView
+                android:id="@+id/titleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fridge It!"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <!-- Selected Ingredients Section -->
             <TextView
                 android:id="@+id/Select_Ingredient_TitleText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Selected Ingredients:" />
+                android:text="Selected Ingredients:"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/selected_Ingredients_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="ingredients" />
+                android:text="None" />
 
             <Button
                 android:id="@+id/select_Ingredients_Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Select Ingredients" />
-        </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/recommended_recipies_Layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
+            <!-- Recommended Recipes Section -->
             <TextView
                 android:id="@+id/Recommend_Recipies_TitleText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Recommend Recipies:" />
+                android:text="Recommend Recipes:"
+                android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/button"
+            <LinearLayout
+                android:id="@+id/recommended_recipies_Layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Show Recipies" />
+                android:orientation="vertical">
+                <!-- Dynamic recipe views will be added here -->
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/button_show_recipes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Show Recipes" />
         </LinearLayout>
-
-    </LinearLayout>
-
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
