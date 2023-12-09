@@ -35,25 +35,6 @@ public class MainActivity extends AppCompatActivity {
             recipesLayout.addView(recipeView);
         }
 
-
-        String selectedIngredients[] = {"Tomatoes", "Cheese", "Rice"};
-        // Get the TextView for displaying selected ingredients
-        TextView selectedIngredientsText = findViewById(R.id.selected_Ingredients_text);
-
-        // Create a string from the array elements
-        StringBuilder ingredientsBuilder = new StringBuilder();
-        for (String ingredient : selectedIngredients) {
-            ingredientsBuilder.append(ingredient).append(", ");
-        }
-
-        // Remove the trailing comma and space
-        if (ingredientsBuilder.length() > 0) {
-            ingredientsBuilder.setLength(ingredientsBuilder.length() - 2);
-        }
-
-        // Set the text to the TextView
-        selectedIngredientsText.setText(ingredientsBuilder.toString());
-
         // Initialize the boolean array
         checkedIngredients = new boolean[allIngredients.length];
 
