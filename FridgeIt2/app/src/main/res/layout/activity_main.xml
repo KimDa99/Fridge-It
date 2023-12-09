@@ -60,11 +60,6 @@
                 <!-- Dynamic recipe views will be added here -->
             </LinearLayout>
 
-            <Button
-                android:id="@+id/button_show_recipes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Show Recipes" />
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
