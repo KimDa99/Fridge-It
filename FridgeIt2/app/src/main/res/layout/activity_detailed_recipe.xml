@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Name of the Recipe -->
+            <TextView
+                android:id="@+id/recipe_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Recipe Name"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:padding="8dp"/>
+
+            <!-- Picture of the Recipe -->
+            <ImageView
+                android:id="@+id/recipe_image"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_launcher_background" /> <!-- Placeholder image -->
+
+            <!-- Ingredients -->
+            <TextView
+                android:id="@+id/recipe_ingredients"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ingredients"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:padding="8dp"/>
+
+            <!-- Ingredients List -->
+            <TextView
+                android:id="@+id/ingredients_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="List of Ingredients"
+                android:padding="8dp"/>
+
+            <TextView
+                android:id="@+id/recipe_Instruction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Instruction"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:padding="8dp"/>
+
+            <!-- Step-by-Step Recipe Instructions -->
+            <TextView
+                android:id="@+id/recipe_instructions_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Recipe Instructions"
+                android:padding="8dp"/>
+        </LinearLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
