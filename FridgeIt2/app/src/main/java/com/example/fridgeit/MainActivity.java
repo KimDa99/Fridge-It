@@ -5,25 +5,48 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.nfc.Tag;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.fridgeit.scripts.DetailedRecipeActivity;
+import com.example.fridgeit.scripts.RetrofitClientInstance;
+import com.example.fridgeit.scripts.TheMealDBApi;
+import com.example.fridgeit.scripts.model.Ingredient;
+import com.example.fridgeit.scripts.model.IngredientListResponse;
+import com.example.fridgeit.scripts.model.Meal;
 import com.example.fridgeit.scripts.model.Recipe;
+import com.example.fridgeit.scripts.model.MealListResponse;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import com.squareup.picasso.Picasso;
+
+
 public class MainActivity extends AppCompatActivity {
 
-    String[] allIngredients = {"Tomatoes", "Cheese", "Basil", "Olive Oil", "Garlic", "Onions", "Chicken", "Beef"};
+    private List<String> allIngredients = new ArrayList<>();
+//    String[] allIngredients = {"Tomatoes", "Cheese", "Basil", "Olive Oil", "Garlic", "Onions", "Chicken", "Beef"};
     boolean[] checkedIngredients;
     ArrayList<String> userSelectedIngredients = new ArrayList<>();
+
+    private List<Meal> meals = new ArrayList<>();
+
+    private int apiCallCounter = 0;
+    private final int totalApiCalls = 26; // For letters A to Z
 
     private List<Recipe> recipes = new ArrayList<>();
 
@@ -32,6 +55,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        /* [Setting up Ingredients] */
+
+        // get all ingredients from api
+        updateAllIngredient();
+
+        // Initialize the boolean array
+        checkedIngredients = new boolean[allIngredients.size()];
+
+        // Set up the Select Ingredients Button
+        Button selectIngredientsButton = findViewById(R.id.select_Ingredients_Button);
+        selectIngredientsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showIngredientSelectionDialog();
+            }
+        });
         // Example of dynamically adding views to the recommended recipes layout
         LinearLayout recipesLayout = findViewById(R.id.recommended_recipies_Layout);
 
@@ -50,11 +90,32 @@ public class MainActivity extends AppCompatActivity {
         // Set up the Select Ingredients Button
         Button selectIngredientsButton = findViewById(R.id.select_Ingredients_Button);
         selectIngredientsButton.setOnClickListener(new View.OnClickListener() {
+    private void updateAllIngredient()
+    {
+        // Initialize API service
+        TheMealDBApi apiService = RetrofitClientInstance.getRetrofitInstance().create(TheMealDBApi.class);
+
+        // Fetch ingredients
+        apiService.listAllIngredients().enqueue(new Callback<IngredientListResponse>() {
             @Override
-            public void onClick(View v) {
-                showIngredientSelectionDialog();
+            public void onResponse(Call<IngredientListResponse> call, Response<IngredientListResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    allIngredients.clear();
+                    for(Ingredient ingredient : response.body().getIngredients())
+                    {
+                        allIngredients.add(ingredient.getName());
+                    }
+
+                    checkedIngredients = new boolean[allIngredients.size()];
+                }
+            }
+
+            @Override
+            public void onFailure(Call<IngredientListResponse> call, Throwable t) {
+                // TODO: Handle failure
             }
         });
+    }
 
         List<String> ingredients = new ArrayList<>();
         ingredients.add("Tomato");
@@ -73,14 +134,16 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Select Ingredients");
 
-        builder.setMultiChoiceItems(allIngredients, checkedIngredients, new DialogInterface.OnMultiChoiceClickListener() {
+        String[] ingredientArray = allIngredients.toArray(new String[allIngredients.size()]);
+
+        builder.setMultiChoiceItems(ingredientArray, checkedIngredients, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                 // Update the current focused item's checked status
                 checkedIngredients[which] = isChecked;
 
                 // Get the current focused item
-                String currentItem = allIngredients[which];
+                String currentItem = ingredientArray[which];
 
                 // Add or remove the item from the list of selected items
                 if (isChecked) {
