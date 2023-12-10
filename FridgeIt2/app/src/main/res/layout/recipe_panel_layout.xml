@@ -30,6 +30,15 @@
             android:id="@+id/recipe_ingredients"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ingredients" />
+            android:text="Ingredients"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:id="@+id/recipe_ingredients_excluded"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ingredients"
+            android:textColor="#FF0000" />
+
     </LinearLayout>
 </LinearLayout>
