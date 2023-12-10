@@ -72,6 +72,20 @@ public class MainActivity extends AppCompatActivity {
                 showIngredientSelectionDialog();
             }
         });
+
+        /* [Setting up possible Recipes] */
+        // fetch meal info from apis
+        meals.clear();
+        for (char alphabet = 'a'; alphabet <= 'z'; alphabet++)
+        {
+            fetchMealsByFirstLetter(alphabet);
+        }
+        for(Meal meal : meals)
+        {
+            meal.processIngredientsAndMeasures();
+        }
+
+
         // Example of dynamically adding views to the recommended recipes layout
         LinearLayout recipesLayout = findViewById(R.id.recommended_recipies_Layout);
 
@@ -84,12 +98,19 @@ public class MainActivity extends AppCompatActivity {
             recipesLayout.addView(recipeView);
         }
 
-        // Initialize the boolean array
-        checkedIngredients = new boolean[allIngredients.length];
+        recipes.clear();
 
-        // Set up the Select Ingredients Button
-        Button selectIngredientsButton = findViewById(R.id.select_Ingredients_Button);
-        selectIngredientsButton.setOnClickListener(new View.OnClickListener() {
+        for(Meal targetMeal : meals)
+        {
+            Recipe newRecipe = new Recipe("id", targetMeal.getName(), targetMeal.getIngredients(), targetMeal.getMeasures());
+            newRecipe.setImage(targetMeal.getImage());
+            recipes.add(newRecipe);
+        }
+
+        populateRecipePanels(recipes);
+
+    }
+
     private void updateAllIngredient()
     {
         // Initialize API service
@@ -117,18 +138,26 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-        List<String> ingredients = new ArrayList<>();
-        ingredients.add("Tomato");
-        ingredients.add("potatoes");
-        Recipe testRecipe = new Recipe("id", "name", ingredients);
-        recipes.add(testRecipe);
-        recipes.add(testRecipe);
-        recipes.add(testRecipe);
-        recipes.add(testRecipe);
-        recipes.add(testRecipe);
+    private void fetchMealsByFirstLetter(char letter) {
+        TheMealDBApi apiService = RetrofitClientInstance.getRetrofitInstance().create(TheMealDBApi.class);
 
-        populateRecipePanels(recipes);
+        apiService.searchMealsByFirstLetter(String.valueOf(letter)).enqueue(new Callback<MealListResponse>() {
+            @Override
+            public void onResponse(Call<MealListResponse> call, Response<MealListResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Meal> fetchedMeals = response.body().getMeals();
+                    if (fetchedMeals != null) { // Check if fetchedMeals is not null
+                        meals.addAll(fetchedMeals);
+                    }
+                }
+                apiCallCompleted();
+            }
 
+            @Override
+            public void onFailure(Call<MealListResponse> call, Throwable t) {
+                apiCallCompleted();
+            }
+        });
     }
     private void showIngredientSelectionDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -183,6 +212,8 @@ public class MainActivity extends AppCompatActivity {
             ingredientsBuilder.setLength(ingredientsBuilder.length() - 2);
         }
         selectedIngredientsText.setText(ingredientsBuilder.toString());
+
+        populateRecipePanels(recipes);
     }
 
     private void populateRecipePanels(List<Recipe> recipes)
@@ -196,11 +227,26 @@ public class MainActivity extends AppCompatActivity {
             TextView recipeName = recipePanel.findViewById(R.id.recipe_name);
             ImageView recipeImage = recipePanel.findViewById(R.id.recipe_image);
             TextView recipeIngredients = recipePanel.findViewById(R.id.recipe_ingredients);
+            TextView recipeExcludedIngredients = recipePanel.findViewById(R.id.recipe_ingredients_excluded);
 
             recipeName.setText(recipe.strMeal);
             // Load image using a library like Glide or Picasso
             // Glide.with(this).load(recipe.strMealThumb).into(recipeImage);
-            recipeIngredients.setText("/* Concatenate ingredients here */");
+            String strRecipeIngredients = "";
+            for(String string : recipe.getIncludedIngredientMeasure(userSelectedIngredients))
+            {
+                strRecipeIngredients += string + ", ";
+            }
+            recipeIngredients.setText(strRecipeIngredients);
+
+            String strRecipeExcludedIngredients = "";
+            for(String string : recipe.getExcludedIngredientMeasure(userSelectedIngredients))
+            {
+                strRecipeExcludedIngredients += string + ", ";
+            }
+            recipeExcludedIngredients.setText(strRecipeExcludedIngredients);
+
+            Picasso.get().load(recipe.getImage()).into(recipeImage);
 
             recipePanel.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -214,5 +260,23 @@ public class MainActivity extends AppCompatActivity {
 
             recipesLayout.addView(recipePanel);
         }
+
+    }
+    private void apiCallCompleted() {
+        apiCallCounter++;
+        if (apiCallCounter == totalApiCalls) {
+            processMealsAndPopulateRecipes();
+        }
+    }
+
+    private void processMealsAndPopulateRecipes() {
+        recipes.clear();
+        for (Meal targetMeal : meals) {
+            targetMeal.processIngredientsAndMeasures();
+            Recipe newRecipe = new Recipe("id", targetMeal.getName(), targetMeal.getIngredients(), targetMeal.getMeasures());
+            newRecipe.setImage(targetMeal.getImage());
+            recipes.add(newRecipe);
+        }
+        populateRecipePanels(recipes);
     }
 }
