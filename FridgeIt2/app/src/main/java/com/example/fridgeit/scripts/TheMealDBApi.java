@@ -17,4 +17,7 @@ public interface TheMealDBApi {
 
     @GET("search.php")
     Call<RecipeListResponse> searchMealByName(@Query("s") String mealName);
+
+    @GET("lookup.php")
+    Call<RecipeListResponse> lookupMealById(@Query("i") String mealId);
 }
