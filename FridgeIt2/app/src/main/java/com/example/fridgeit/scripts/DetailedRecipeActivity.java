@@ -76,7 +76,7 @@ public class DetailedRecipeActivity extends AppCompatActivity {
         ingredientsList.setText(ingredientString);
 
         recipeInstructions.setText(recipe.getInstruction());
-
+/*
         // Initialize VideoView
         VideoView videoView = findViewById(R.id.recipe_video);
 
@@ -95,5 +95,5 @@ public class DetailedRecipeActivity extends AppCompatActivity {
             // Hide the VideoView or show a message indicating no video is available
             videoView.setVisibility(View.GONE); // You can set visibility according to your UI/UX
         }
-    }
+*/    }
 }
