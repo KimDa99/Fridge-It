@@ -71,6 +71,10 @@ public class Meal {
     private List<String> selectedIngredients = new ArrayList<>();
     private List<String> unselectedIngredients = new ArrayList<>();
 
+    public int getExcludedIngredientScore()
+    {
+        return unselectedIngredients.size();
+    }
     public void processIngredientsAndMeasures() {
         // Clear the lists to avoid duplications if this method is called multiple times
         ingredients.clear();

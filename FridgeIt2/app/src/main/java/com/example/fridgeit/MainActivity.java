@@ -36,6 +36,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import retrofit2.Call;
@@ -75,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         updateSelectedIngredientsView();
         // Initialize the boolean array
         checkedIngredients = new boolean[allIngredients.size()];
+        updateCheckedIngredients(allIngredients, userSelectedIngredients);
 
         // Set up the Select Ingredients Button
         Button selectIngredientsButton = findViewById(R.id.select_Ingredients_Button);
@@ -251,9 +254,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void processMealsAndPopulateRecipes() {
         for(Meal meal : meals){ meal.processIngredientsAndMeasures();}
-
         recommendedMeals.clear();
-        recommendedMeals.addAll(meals);
+        recommendedMeals = sortMealsByExcludedIngredients(meals);
 
         populateRecipePanels();
     }
@@ -482,4 +484,38 @@ public class MainActivity extends AppCompatActivity {
 
         return loadedAllIngredients;
     }
+
+    private void updateCheckedIngredients(List<String> allIngredients, List<String> userSelectedIngredients) {
+        checkedIngredients = new boolean[allIngredients.size()];
+
+        for (int i = 0; i < allIngredients.size(); i++) {
+            String currentIngredient = allIngredients.get(i);
+            checkedIngredients[i] = userSelectedIngredients.contains(currentIngredient);
+        }
+    }
+
+    private List<Meal> sortMealsByExcludedIngredients(List<Meal> meals) {
+        List<Meal> sortedMeals = new ArrayList<>();
+/*
+        // Calculate scores for each meal based on excluded ingredients
+        for (Meal meal : meals) {
+            int excludedIngredientsCount = meal.getExcludedIngredientMeasure(userSelectedIngredients).size();
+            meal.setExcludedIngredientsScore(excludedIngredientsCount);
+        }
+*/
+        // Sort meals based on scores
+        Collections.sort(meals, new Comparator<Meal>() {
+            @Override
+            public int compare(Meal meal1, Meal meal2) {
+                // Ascending order, modify if you want descending
+                return Integer.compare(meal1.getExcludedIngredientScore(), meal2.getExcludedIngredientScore());
+            }
+        });
+
+        // Add sorted meals to the result list
+        sortedMeals.addAll(meals);
+
+        return sortedMeals;
+    }
+
 }
