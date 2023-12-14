@@ -30,7 +30,7 @@ Using APIs of [MealDB](https://www.themealdb.com/api.php)
 ![image](https://github.com/KimDa99/Fridge-It/assets/91198933/eeb56e7d-05fb-4315-a03e-7d98b143e3bf)
 
   
-# Why I made this
+# Why I Made This App
 
 Whenever I watch or search for recipes, there are always ingredients I don't have.
 
