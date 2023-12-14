@@ -2,6 +2,7 @@ package com.example.fridgeit.scripts.model;
 
 import android.media.Image;
 
+import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
 import java.lang.reflect.Array;
@@ -169,4 +170,16 @@ public class Meal {
         unselectedIngredients = targetArray;
         return targetArray;
     }
+
+    public String toJson(){
+        Gson gson = new Gson();
+        return gson.toJson(this);
+    }
+
+    public static Meal fromJson(String json)
+    {
+        Gson gson = new Gson();
+        return gson.fromJson(json, Meal.class);
+    }
+
 }

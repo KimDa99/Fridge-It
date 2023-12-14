@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -27,6 +28,13 @@ import com.example.fridgeit.scripts.model.Meal;
 import com.example.fridgeit.scripts.model.Recipe;
 import com.example.fridgeit.scripts.model.MealListResponse;
 
+import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +42,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
 
@@ -77,11 +88,12 @@ public class MainActivity extends AppCompatActivity {
 
         /* [Setting up possible Recipes] */
         // fetch meal info from apis
-        meals.clear();
+        checkAndFetchMeals();
+        /*
         for (char alphabet = 'a'; alphabet <= 'z'; alphabet++)
         {
             fetchMealsByFirstLetter(alphabet);
-        }
+        }*/
 
     }
 
@@ -236,6 +248,7 @@ public class MainActivity extends AppCompatActivity {
     private void apiCallCompleted() {
         apiCallCounter++;
         if (apiCallCounter == totalApiCalls) {
+            saveMealsToFolder(meals);
             processMealsAndPopulateRecipes();
         }
     }
@@ -248,4 +261,152 @@ public class MainActivity extends AppCompatActivity {
 
         populateRecipePanels();
     }
+
+    private void saveMealsToFile(List<Meal> meals) {
+        Context context = getApplicationContext();
+        int duration = Toast.LENGTH_LONG;
+
+        CharSequence text = "!!!";
+
+
+        String json = new Gson().toJson(meals);
+
+        try (FileOutputStream fos = openFileOutput("meals.json", Context.MODE_PRIVATE)) {
+            fos.write(json.getBytes());
+            text = "Save!";
+        } catch (IOException e) {
+            e.printStackTrace();
+            text = "Un-Save!";
+        }
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+
+    }
+
+    private void checkAndFetchMeals() {
+        List<Meal> loadedMeals = loadMealsFromFolder();
+
+        if (loadedMeals.isEmpty()) {
+            for (char alphabet = 'a'; alphabet <= 'z'; alphabet++) {
+                fetchMealsByFirstLetter(alphabet);
+            }
+        } else {
+            // Meals are already fetched, load from the file
+            Context context = getApplicationContext();
+            int duration = Toast.LENGTH_LONG;
+            CharSequence text = "ONLY LOAD";
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+
+            meals = loadedMeals;
+            processMealsAndPopulateRecipes();
+        }
+    }
+
+    // Load meals from a file
+    private List<Meal> loadMealsFromFile() {
+        Context context = getApplicationContext();
+        CharSequence text = "Load!";
+        int duration = Toast.LENGTH_LONG;
+
+
+        try (FileInputStream fis = openFileInput("meals.json")) {
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            StringBuilder sb = new StringBuilder();
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+
+            String json = sb.toString();
+            Type type = new TypeToken<List<Meal>>() {}.getType();
+            return new Gson().fromJson(json, type);
+        } catch (IOException e) {
+            text = "Load Failed!";
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    private void saveMealsToFolder(List<Meal> meals) {
+        Context context = getApplicationContext();
+        int duration = Toast.LENGTH_LONG;
+        CharSequence text;
+
+        try {
+            File mealsFolder = new File(getFilesDir(), "meals");
+            if (!mealsFolder.exists()) {
+                mealsFolder.mkdir();
+            }
+
+            for (Meal meal : meals) {
+                File mealFile = new File(mealsFolder, meal.idMeal + ".json");
+                try (FileOutputStream fos = new FileOutputStream(mealFile)) {
+                    String json = meal.toJson();
+                    fos.write(json.getBytes());
+                }
+            }
+
+            text = "Save!";
+        } catch (IOException e) {
+            e.printStackTrace();
+            text = "Un-Save!";
+        }
+
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+    }
+    private List<Meal> loadMealsFromFolder() {
+        Context context = getApplicationContext();
+        int duration = Toast.LENGTH_LONG;
+        CharSequence text;
+
+        List<Meal> loadedMeals = new ArrayList<>();
+
+        try {
+            File mealsFolder = new File(getFilesDir(), "meals");
+            if (mealsFolder.exists()) {
+                File[] mealFiles = mealsFolder.listFiles();
+
+                if (mealFiles != null) {
+                    for (File mealFile : mealFiles) {
+                        try (FileInputStream fis = new FileInputStream(mealFile)) {
+                            InputStreamReader isr = new InputStreamReader(fis);
+                            BufferedReader br = new BufferedReader(isr);
+                            StringBuilder sb = new StringBuilder();
+                            String line;
+
+                            while ((line = br.readLine()) != null) {
+                                sb.append(line);
+                            }
+
+                            String json = sb.toString();
+                            Meal meal = Meal.fromJson(json);
+                            loadedMeals.add(meal);
+                        }
+                    }
+                }
+            }
+
+            text = "Load!";
+        } catch (IOException e) {
+            e.printStackTrace();
+            text = "Load Failed!";
+        }
+
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+
+        return loadedMeals;
+    }
+
+
 }
