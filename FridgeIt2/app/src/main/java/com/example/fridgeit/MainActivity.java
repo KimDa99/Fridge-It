@@ -51,9 +51,8 @@ import com.squareup.picasso.Picasso;
 public class MainActivity extends AppCompatActivity {
 
     private List<String> allIngredients = new ArrayList<>();
-//    String[] allIngredients = {"Tomatoes", "Cheese", "Basil", "Olive Oil", "Garlic", "Onions", "Chicken", "Beef"};
     boolean[] checkedIngredients;
-    ArrayList<String> userSelectedIngredients = new ArrayList<>();
+    private ArrayList<String> userSelectedIngredients = new ArrayList<>();
 
     private List<Meal> meals = new ArrayList<>();
     private List<Meal> recommendedMeals = new ArrayList<>();
@@ -61,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
     private int apiCallCounter = 0;
     private final int totalApiCalls = 26; // For letters A to Z
 
-    private List<Recipe> recipes = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +70,9 @@ public class MainActivity extends AppCompatActivity {
         /* [Setting up Ingredients] */
 
         // get all ingredients from api
-        updateAllIngredient();
-
+        //updateAllIngredient();
+        checkAndFetchIngredient();
+        updateSelectedIngredientsView();
         // Initialize the boolean array
         checkedIngredients = new boolean[allIngredients.size()];
 
@@ -86,14 +85,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        /* [Setting up possible Recipes] */
         // fetch meal info from apis
         checkAndFetchMeals();
-        /*
-        for (char alphabet = 'a'; alphabet <= 'z'; alphabet++)
-        {
-            fetchMealsByFirstLetter(alphabet);
-        }*/
 
     }
 
@@ -189,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
     private void updateSelectedIngredientsView() {
+        saveIngredientsToFile(allIngredients, userSelectedIngredients);
         TextView selectedIngredientsText = findViewById(R.id.selected_Ingredients_text);
         StringBuilder ingredientsBuilder = new StringBuilder();
         for (String ingredient : userSelectedIngredients) {
@@ -198,6 +192,8 @@ public class MainActivity extends AppCompatActivity {
             ingredientsBuilder.setLength(ingredientsBuilder.length() - 2);
         }
         selectedIngredientsText.setText(ingredientsBuilder.toString());
+
+        if(userSelectedIngredients.isEmpty()) selectedIngredientsText.setText("None");
 
         processMealsAndPopulateRecipes();
     }
@@ -262,27 +258,6 @@ public class MainActivity extends AppCompatActivity {
         populateRecipePanels();
     }
 
-    private void saveMealsToFile(List<Meal> meals) {
-        Context context = getApplicationContext();
-        int duration = Toast.LENGTH_LONG;
-
-        CharSequence text = "!!!";
-
-
-        String json = new Gson().toJson(meals);
-
-        try (FileOutputStream fos = openFileOutput("meals.json", Context.MODE_PRIVATE)) {
-            fos.write(json.getBytes());
-            text = "Save!";
-        } catch (IOException e) {
-            e.printStackTrace();
-            text = "Un-Save!";
-        }
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
-
-    }
-
     private void checkAndFetchMeals() {
         List<Meal> loadedMeals = loadMealsFromFolder();
 
@@ -292,54 +267,14 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             // Meals are already fetched, load from the file
-            Context context = getApplicationContext();
-            int duration = Toast.LENGTH_LONG;
-            CharSequence text = "ONLY LOAD";
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
+            showToastMessage("Meal is loaded");
 
             meals = loadedMeals;
             processMealsAndPopulateRecipes();
         }
     }
 
-    // Load meals from a file
-    private List<Meal> loadMealsFromFile() {
-        Context context = getApplicationContext();
-        CharSequence text = "Load!";
-        int duration = Toast.LENGTH_LONG;
-
-
-        try (FileInputStream fis = openFileInput("meals.json")) {
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
-
-            InputStreamReader isr = new InputStreamReader(fis);
-            BufferedReader br = new BufferedReader(isr);
-            StringBuilder sb = new StringBuilder();
-            String line;
-
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-
-            String json = sb.toString();
-            Type type = new TypeToken<List<Meal>>() {}.getType();
-            return new Gson().fromJson(json, type);
-        } catch (IOException e) {
-            text = "Load Failed!";
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
-
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
-    }
-
     private void saveMealsToFolder(List<Meal> meals) {
-        Context context = getApplicationContext();
-        int duration = Toast.LENGTH_LONG;
-        CharSequence text;
 
         try {
             File mealsFolder = new File(getFilesDir(), "meals");
@@ -355,19 +290,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            text = "Save!";
+            showToastMessage("meals Saved!");
         } catch (IOException e) {
             e.printStackTrace();
-            text = "Un-Save!";
+            showToastMessage("meals un-Saved!");
         }
 
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
     }
     private List<Meal> loadMealsFromFolder() {
-        Context context = getApplicationContext();
-        int duration = Toast.LENGTH_LONG;
-        CharSequence text;
 
         List<Meal> loadedMeals = new ArrayList<>();
 
@@ -396,17 +326,160 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            text = "Load!";
+            showToastMessage("Meals Load!");
         } catch (IOException e) {
             e.printStackTrace();
-            text = "Load Failed!";
+            showToastMessage("Meals Load Failed");
         }
-
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
 
         return loadedMeals;
     }
 
+    private void saveIngredientsToFile(List<String> allIngredients, List<String> selectedIngredients) {
+        try {
+            File ingredientsFolder = new File(getFilesDir(), "ingredients");
+            if (!ingredientsFolder.exists()) {
+                ingredientsFolder.mkdir();
+            }
 
+            // Save all ingredients
+            File allIngredientsFile = new File(ingredientsFolder, "allIngredients.json");
+            try (FileOutputStream allIngredientsFos = new FileOutputStream(allIngredientsFile)) {
+                String allIngredientsJson = new Gson().toJson(allIngredients);
+                allIngredientsFos.write(allIngredientsJson.getBytes());
+            }
+
+            // Save selected ingredients
+            File selectedIngredientsFile = new File(ingredientsFolder, "selectedIngredients.json");
+            try (FileOutputStream selectedIngredientsFos = new FileOutputStream(selectedIngredientsFile)) {
+                String selectedIngredientsJson = new Gson().toJson(selectedIngredients);
+                selectedIngredientsFos.write(selectedIngredientsJson.getBytes());
+            }
+
+            showToastMessage("Ingredients Saved!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToastMessage("Ingredients un-Saved!");
+        }
+
+    }
+
+    private List<String> loadIngredientsFromFile(String fileName) {
+
+        try (FileInputStream fis = openFileInput(fileName)) {
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            StringBuilder sb = new StringBuilder();
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+
+            String json = sb.toString();
+            Type type = new TypeToken<List<String>>() {}.getType();
+            showToastMessage("Load Ingredients");
+            return new Gson().fromJson(json, type);
+        } catch (IOException e) {
+            showToastMessage("Failed to Load Ingredients!");
+
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    private void checkAndFetchIngredient()
+    {
+        List<String> loadedWholeIngredient = loadIngredientsFromFolder();
+
+        if(loadedWholeIngredient.isEmpty())
+        {
+            showToastMessage("No Loaded Ingredients");
+            updateAllIngredient();
+            saveIngredientsToFile(allIngredients, userSelectedIngredients);
+        }
+        else
+        {
+            showToastMessage("Ingredients Loaded?");
+            allIngredients = loadedWholeIngredient;
+
+            List<String> loadedSelectedIngredients = loadSelectedIngredientsFromFolder();
+            if (!loadedSelectedIngredients.isEmpty()) {
+                userSelectedIngredients = (ArrayList<String>) loadedSelectedIngredients;
+                updateSelectedIngredientsView(); // Update the selected ingredients view if needed
+            }
+        }
+    }
+
+    private void showToastMessage(String string)
+    {
+        Context context = getApplicationContext();
+        int duration = Toast.LENGTH_LONG;
+        CharSequence text = string;
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+    }
+
+    private List<String> loadSelectedIngredientsFromFolder(){
+        List<String> loadedSelectedIngredients = new ArrayList<>();
+        try {
+            File ingredientsFolder = new File(getFilesDir(), "ingredients");
+            if (ingredientsFolder.exists()) {
+                // Load selected ingredients
+                File selectedIngredientsFile = new File(ingredientsFolder, "selectedIngredients.json");
+                try (FileInputStream selectedIngredientsFis = new FileInputStream(selectedIngredientsFile)) {
+                    InputStreamReader isr = new InputStreamReader(selectedIngredientsFis);
+                    BufferedReader br = new BufferedReader(isr);
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line);
+                    }
+
+                    String selectedIngredientsJson = sb.toString();
+                    Type type = new TypeToken<List<String>>() {}.getType();
+                    loadedSelectedIngredients = new Gson().fromJson(selectedIngredientsJson, type);
+                }
+            }
+
+            showToastMessage("Ingredients Load!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToastMessage("Ingredients Load Failed!");
+        }
+        return loadedSelectedIngredients;
+    }
+    private List<String> loadIngredientsFromFolder() {
+        List<String> loadedAllIngredients = new ArrayList<>();
+
+        try {
+            File ingredientsFolder = new File(getFilesDir(), "ingredients");
+            if (ingredientsFolder.exists()) {
+                // Load all ingredients
+                File allIngredientsFile = new File(ingredientsFolder, "allIngredients.json");
+                try (FileInputStream allIngredientsFis = new FileInputStream(allIngredientsFile)) {
+                    InputStreamReader isr = new InputStreamReader(allIngredientsFis);
+                    BufferedReader br = new BufferedReader(isr);
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line);
+                    }
+
+                    String allIngredientsJson = sb.toString();
+                    Type type = new TypeToken<List<String>>() {}.getType();
+                    loadedAllIngredients = new Gson().fromJson(allIngredientsJson, type);
+                }
+            }
+
+            showToastMessage("Ingredients Load!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToastMessage("Ingredients Load Failed!");
+        }
+
+        return loadedAllIngredients;
+    }
 }
