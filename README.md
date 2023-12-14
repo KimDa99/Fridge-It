@@ -1,2 +1,3 @@
-# MobileProgrammingFinalProject2023
-this is the repository of the Mobile programming proj. in 2023 final 
+# Fridge-It
+This is the Android app for recommending recipes based on ingredients that users have.
+Using APIs of (MealDB)[https://www.themealdb.com/api.php]
