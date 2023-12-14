@@ -7,7 +7,7 @@ Using APIs of [MealDB](https://www.themealdb.com/api.php)
 
 Whenever I watch or search for recipes, there are always ingredients I don't have. 
 Fridge-It aims to solve this problem by recommending recipes based on what users already have in their fridge. 
-This app simplifies the cooking experience, minimizes the need for additional grocery shopping, and encourages users to make the most of the ingredients they already possess.
+This app simplifies the cooking experience, minimizes the need for additional grocery shopping, and encourages users to make the most of the ingredients they already have.
 
 
 # How to use
