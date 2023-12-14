@@ -13,7 +13,8 @@ public class Meal {
 
     @SerializedName("strMeal")
     private String name;
-
+    @SerializedName("idMeal")
+    public String idMeal;
     @SerializedName("strMealThumb")
     private String image;
 
@@ -135,5 +136,37 @@ public class Meal {
     public String getImage()
     {
         return image;
+    }
+
+    public List<String> getIncludedIngredientMeasure(List<String> includedIngredients)
+    {
+        List<String> targetArray = new ArrayList<>();
+        for(int i =0; i < includedIngredients.size() ; i++)
+        {
+            int containedIndex = ingredients.indexOf(includedIngredients.get(i));
+            if (containedIndex >= 0)
+            {
+                if(measures.size() > containedIndex)
+                    targetArray.add(ingredients.get(containedIndex) + " : "+ measures.get(containedIndex));
+                else
+                    targetArray.add(ingredients.get(containedIndex));
+            }
+        }
+        selectedIngredients = targetArray;
+        return targetArray;
+    }
+    public List<String> getExcludedIngredientMeasure(List<String> excludedIngredients) {
+        List<String> targetArray = new ArrayList<>();
+        for (int i = 0; i < ingredients.size(); i++) {
+            if (!excludedIngredients.contains(ingredients.get(i))) {
+                if (measures.size() > i) {
+                    targetArray.add(ingredients.get(i) + " : " + measures.get(i));
+                } else {
+                    targetArray.add(ingredients.get(i));
+                }
+            }
+        }
+        unselectedIngredients = targetArray;
+        return targetArray;
     }
 }

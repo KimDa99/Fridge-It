@@ -67,6 +67,22 @@
                 android:layout_height="wrap_content"
                 android:text="Recipe Instructions"
                 android:padding="8dp"/>
+
+            <TextView
+                android:id="@+id/Video"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Video"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:padding="8dp"/>
+
+            <VideoView
+                android:id="@+id/recipe_video"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"/>
+
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

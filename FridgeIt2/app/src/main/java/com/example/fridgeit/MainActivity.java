@@ -3,6 +3,7 @@ package com.example.fridgeit;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> userSelectedIngredients = new ArrayList<>();
 
     private List<Meal> meals = new ArrayList<>();
+    private List<Meal> recommendedMeals = new ArrayList<>();
 
     private int apiCallCounter = 0;
     private final int totalApiCalls = 26; // For letters A to Z
@@ -80,34 +82,6 @@ public class MainActivity extends AppCompatActivity {
         {
             fetchMealsByFirstLetter(alphabet);
         }
-        for(Meal meal : meals)
-        {
-            meal.processIngredientsAndMeasures();
-        }
-
-
-        // Example of dynamically adding views to the recommended recipes layout
-        LinearLayout recipesLayout = findViewById(R.id.recommended_recipies_Layout);
-
-        // You will populate this dynamically based on selected ingredients and available recipes
-        for (int i = 0; i < 5; i++) {
-            TextView recipeView = new TextView(this);
-            recipeView.setText("Recipe " + (i + 1));
-            recipeView.setLayoutParams(new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            recipesLayout.addView(recipeView);
-        }
-
-        recipes.clear();
-
-        for(Meal targetMeal : meals)
-        {
-            Recipe newRecipe = new Recipe("id", targetMeal.getName(), targetMeal.getIngredients(), targetMeal.getMeasures());
-            newRecipe.setImage(targetMeal.getImage());
-            recipes.add(newRecipe);
-        }
-
-        populateRecipePanels(recipes);
 
     }
 
@@ -213,15 +187,15 @@ public class MainActivity extends AppCompatActivity {
         }
         selectedIngredientsText.setText(ingredientsBuilder.toString());
 
-        populateRecipePanels(recipes);
+        processMealsAndPopulateRecipes();
     }
 
-    private void populateRecipePanels(List<Recipe> recipes)
+    private void populateRecipePanels()
     {
         LinearLayout recipesLayout = findViewById(R.id.recommended_recipies_Layout);
         recipesLayout.removeAllViews();
 
-        for (Recipe recipe : recipes) {
+        for (Meal meal : recommendedMeals) {
             View recipePanel = LayoutInflater.from(this).inflate(R.layout.recipe_panel_layout, recipesLayout, false);
 
             TextView recipeName = recipePanel.findViewById(R.id.recipe_name);
@@ -229,38 +203,35 @@ public class MainActivity extends AppCompatActivity {
             TextView recipeIngredients = recipePanel.findViewById(R.id.recipe_ingredients);
             TextView recipeExcludedIngredients = recipePanel.findViewById(R.id.recipe_ingredients_excluded);
 
-            recipeName.setText(recipe.strMeal);
+            recipeName.setText(meal.getName());
             // Load image using a library like Glide or Picasso
             // Glide.with(this).load(recipe.strMealThumb).into(recipeImage);
             String strRecipeIngredients = "";
-            for(String string : recipe.getIncludedIngredientMeasure(userSelectedIngredients))
-            {
+            for (String string : meal.getIncludedIngredientMeasure(userSelectedIngredients)) {
                 strRecipeIngredients += string + ", ";
             }
             recipeIngredients.setText(strRecipeIngredients);
 
             String strRecipeExcludedIngredients = "";
-            for(String string : recipe.getExcludedIngredientMeasure(userSelectedIngredients))
-            {
+            for (String string : meal.getExcludedIngredientMeasure(userSelectedIngredients)) {
                 strRecipeExcludedIngredients += string + ", ";
             }
             recipeExcludedIngredients.setText(strRecipeExcludedIngredients);
 
-            Picasso.get().load(recipe.getImage()).into(recipeImage);
+            Picasso.get().load(meal.getImage()).into(recipeImage);
 
             recipePanel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     // Intent to start DetailedRecipeActivity
                     Intent intent = new Intent(MainActivity.this, DetailedRecipeActivity.class);
-                    intent.putExtra("RECIPE_ID", recipe.idMeal);
+                    intent.putExtra("RECIPE_ID", meal.idMeal);
                     startActivity(intent);
                 }
             });
 
             recipesLayout.addView(recipePanel);
         }
-
     }
     private void apiCallCompleted() {
         apiCallCounter++;
@@ -270,13 +241,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void processMealsAndPopulateRecipes() {
-        recipes.clear();
-        for (Meal targetMeal : meals) {
-            targetMeal.processIngredientsAndMeasures();
-            Recipe newRecipe = new Recipe("id", targetMeal.getName(), targetMeal.getIngredients(), targetMeal.getMeasures());
-            newRecipe.setImage(targetMeal.getImage());
-            recipes.add(newRecipe);
-        }
-        populateRecipePanels(recipes);
+        for(Meal meal : meals){ meal.processIngredientsAndMeasures();}
+
+        recommendedMeals.clear();
+        recommendedMeals.addAll(meals);
+
+        populateRecipePanels();
     }
 }
