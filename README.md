@@ -36,3 +36,7 @@ This app simplifies the cooking experience, minimizes the need for additional gr
 
 ![image](https://github.com/KimDa99/Fridge-It/assets/91198933/eeb56e7d-05fb-4315-a03e-7d98b143e3bf)
 
+
+# Reference
+- Using APIs of [MealDB](https://www.themealdb.com/api.php)
+- helped by [ChatGPT](https://chat.openai.com/auth/login)
