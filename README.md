@@ -3,6 +3,13 @@ Fridge-It is an Android app designed to help users discover recipes based on the
 
 Using APIs of [MealDB](https://www.themealdb.com/api.php)
 
+# Why I Made This App
+
+Whenever I watch or search for recipes, there are always ingredients I don't have. 
+Fridge-It aims to solve this problem by recommending recipes based on what users already have in their fridge. 
+This app simplifies the cooking experience, minimizes the need for additional grocery shopping, and encourages users to make the most of the ingredients they already possess.
+
+
 # How to use
 1. Select Ingredients you have
 
@@ -29,10 +36,3 @@ Using APIs of [MealDB](https://www.themealdb.com/api.php)
 
 ![image](https://github.com/KimDa99/Fridge-It/assets/91198933/eeb56e7d-05fb-4315-a03e-7d98b143e3bf)
 
-  
-# Why I Made This App
-
-Whenever I watch or search for recipes, there are always ingredients I don't have.
-
-Fridge-It aims to solve this problem by recommending recipes based on what users already have in their fridge. 
-This app simplifies the cooking experience, minimizes the need for additional grocery shopping, and encourages users to make the most of the ingredients they already possess.
