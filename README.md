@@ -5,6 +5,7 @@ Using APIs of [MealDB](https://www.themealdb.com/api.php)
 
 # How to use
 1. Select Ingredients you have
+   
 ![image](https://github.com/KimDa99/Fridge-It/assets/91198933/947451fd-3920-468e-97ba-b13b6f6c4b1d)
 ![image](https://github.com/KimDa99/Fridge-It/assets/91198933/a3e607e0-0723-4c28-ae0d-2b33aabf396f)
 
