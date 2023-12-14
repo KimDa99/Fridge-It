@@ -253,7 +253,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void processMealsAndPopulateRecipes() {
-        for(Meal meal : meals){ meal.processIngredientsAndMeasures();}
+        for(Meal meal : meals){
+            meal.getIncludedIngredientMeasure(userSelectedIngredients);
+            meal.getExcludedIngredientMeasure(userSelectedIngredients);
+            meal.processIngredientsAndMeasures();
+        }
         recommendedMeals.clear();
         recommendedMeals = sortMealsByExcludedIngredients(meals);
 
@@ -496,13 +500,13 @@ public class MainActivity extends AppCompatActivity {
 
     private List<Meal> sortMealsByExcludedIngredients(List<Meal> meals) {
         List<Meal> sortedMeals = new ArrayList<>();
-/*
+
         // Calculate scores for each meal based on excluded ingredients
         for (Meal meal : meals) {
-            int excludedIngredientsCount = meal.getExcludedIngredientMeasure(userSelectedIngredients).size();
-            meal.setExcludedIngredientsScore(excludedIngredientsCount);
+            meal.getExcludedIngredientMeasure(userSelectedIngredients);
+//            meal.setExcludedIngredientScore(excludedIngredientsCount);
         }
-*/
+
         // Sort meals based on scores
         Collections.sort(meals, new Comparator<Meal>() {
             @Override
